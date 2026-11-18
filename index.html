@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Article Configurator</title>
+<title>Pace Atelier Bike Configurator</title>
 
 <style>
 * {
@@ -22,6 +22,7 @@ header {
     height: 75px;
     padding: 0 5%;
     display: flex;
+    justify-content: center;
     align-items: center;
     background: white;
     border-bottom: 1px solid #eee;
@@ -84,14 +85,15 @@ header h2 {
 }
 
 /* OVERLAY ORDER */
+
 #baseLayer { z-index: 0; }
-#layer0 { z-index: 4; }   /* Frame */
-#layer1 { z-index: 2; }   /* Wheels */
-#layer2 { z-index: 5; }   /* Groupset */
-#layer2b { z-index: 5.5; } /* Second Groupset image */
-#layer3 { z-index: 1; }   /* Brakes */
-#layer4 { z-index: 3; }   /* Tires */
-#layer5 { z-index: 6; }   /* Saddle */
+#layer0 { z-index: 4; }
+#layer1 { z-index: 2; }
+#layer2 { z-index: 5; }
+#layer2b { z-index: 5.5; }
+#layer3 { z-index: 1; }
+#layer4 { z-index: 3; }
+#layer5 { z-index: 6; }
 
 .preview-info {
     width: 100%;
@@ -200,6 +202,13 @@ button:disabled {
 .option h3 {
     font-size: 13px;
     padding: 0 10px;
+    margin-bottom: 5px;
+}
+
+.option-price {
+    font-size: 12px;
+    color: #777;
+    padding: 0 10px 12px;
 }
 
 .selection-summary {
@@ -219,6 +228,47 @@ button:disabled {
     margin: 10px 0;
 }
 
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    color: #777;
+    margin: 12px 0;
+}
+
+.summary-item span:first-child {
+    flex: 1;
+}
+
+.summary-item span:last-child {
+    white-space: nowrap;
+    color: #222;
+}
+
+.total-price {
+    border-top: 1px solid #ddd;
+    margin-top: 18px;
+    padding-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.total-price strong {
+    font-size: 21px;
+    letter-spacing: 0;
+}
+
+.completion-price {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 25px;
+}
+
 @media(max-width: 950px) {
     .configurator {
         grid-template-columns: 1fr;
@@ -230,13 +280,33 @@ button:disabled {
         margin: auto;
     }
 }
+
+#PaceLogo {
+    max-width: 10%;
+    padding: 20px;
+}
+
+@media(max-width: 600px) {
+    #PaceLogo {
+        max-width: 25%;
+    }
+
+    .configurator {
+        padding: 25px 15px;
+    }
+
+    .options {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 </style>
 </head>
 
 <body>
 
 <header>
-    <h2>BIKE CONFIGURATOR</h2>
+    <img src="paceV11.png" alt="Pace Logo" id="PaceLogo">
+    <h2>Bike Configurator</h2>
 </header>
 
 <main class="configurator">
@@ -290,10 +360,18 @@ button:disabled {
         <div id="stepContent"></div>
 
         <div class="selection-summary">
+
             <h3>YOUR SELECTION</h3>
+
             <div id="selectionList">
                 <p>No selections yet</p>
             </div>
+
+            <div class="total-price">
+                <span>TOTAL PRICE</span>
+                <strong id="totalPrice">€0</strong>
+            </div>
+
         </div>
 
     </aside>
@@ -302,7 +380,22 @@ button:disabled {
 
 <script>
 
-// YOUR EXISTING IMAGE PATHS ARE PRESERVED
+// ======================================
+// YOUR IMAGE PATHS AND PRICES
+// ======================================
+//
+// FORMAT:
+//
+// Normal option:
+// ["Name", "image.png", PRICE]
+//
+// Option with TWO images:
+// ["Name", "image1.png", "image2.png", PRICE]
+//
+// Change the prices directly below.
+// All prices are in EUR.
+//
+// ======================================
 
 const steps = [
 
@@ -310,14 +403,55 @@ const steps = [
         title: "Frame",
         description: "Choose your frame.",
         options: [
+
             [
                 "Quick Pro ER:ONE Shimmering Silver",
-                "Quickpro/QP_ERONE_Large/QP_ERONE_ShimmeringSilver.png"
+                "Quickpro/QP_ERONE_Large/QP_ERONE_ShimmeringSilver.png",
+                2299
             ],
+
             [
                 "Quick Pro ER:ONE Twilight Blue",
-                "Quickpro/QP_ERONE_Large/QP_ERONE_TwilightBlue.png"
+                "Quickpro/QP_ERONE_Large/QP_ERONE_TwilightBlue.png",
+                2299
+            ],
+
+            [
+                "Quick Pro ER:ONE Vibrant Orange",
+                "Quickpro/QP_ERONE_Large/QP_ERONE_VibrantOrange.png",
+                2299
+            ],
+
+            [
+                "Quick Pro Blade",
+                "Quickpro/QP_Blade.png",
+                1799
+            ],
+
+            [
+                "Tavelo Arden Race Gloss Black",
+                "Tavelo/Tavelo_ArdenRace_GlossBlack.png",
+                2295
+            ],
+
+            [
+                "Tavelo Arden Race Gloss Carbon",
+                "Tavelo/Tavelo_ArdenRace_GlossCarbon.png",
+                2295
+            ],
+
+            [
+                "Tavelo Arden Race Gloss Silver Metallic",
+                "Tavelo/Tavelo_ArdenRace_GlossSilverMetallic.png",
+                2295
+            ],
+
+            [
+                "Tavelo Arden Race SL Stain Carbon Plaid",
+                "Tavelo/Tavelo_ArdenRaceSL_StainCarbonPlaid.png",
+                2995
             ]
+
         ]
     },
 
@@ -325,18 +459,37 @@ const steps = [
         title: "Wheels",
         description: "Choose your wheels.",
         options: [
+
             [
                 "Rore Aero ST",
-                "Rore Wheels/RoreAeroST.png"
+                "Wheels/RoreAeroST.png",
+                999
             ],
+
             [
                 "Rore Aero 50",
-                "Rore Wheels/RoreAero50.png"
+                "Wheels/RoreAero50.png",
+                1399
             ],
+
             [
                 "Rore Aero 60",
-                "Rore Wheels/RoreAero60.png"
+                "Wheels/RoreAero60.png",
+                1399
+            ],
+
+            [
+                "Enve AR40",
+                "Wheels/EnveAR40.png",
+                1648
+            ],
+
+            [
+                "Enve SES 6.7 Pro",
+                "Wheels/EnveSES67PRO.png",
+                4598
             ]
+
         ]
     },
 
@@ -344,36 +497,49 @@ const steps = [
         title: "Groupset",
         description: "Choose your preferred groupset.",
         options: [
+
             [
                 "Sram Rival 2x12",
                 "Groupsets/SramRival2x12.png",
-                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png"
+                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png",
+                0
             ],
+
             [
                 "Sram Force 2x12",
                 "Groupsets/SramForce2x12.png",
-                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png"
+                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png",
+                0
             ],
+
             [
                 "Sram Red 2x12",
                 "Groupsets/SramRed2x12.png",
-                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png"
+                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png",
+                0
             ],
+
             [
                 "Shimano 105 Di2 2x12",
                 "Groupsets/Shimano1052x12.png",
-                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png"
+                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png",
+                1733
             ],
+
             [
                 "Shimano Ultegra Di2 2x12",
                 "Groupsets/ShimanoUltegra2x12.png",
-                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png"
+                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png",
+                2491
             ],
+
             [
                 "Shimano Dura Ace Di2 2x12",
                 "Groupsets/ShimanoDuraAce2x12.png",
-                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png"
+                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png",
+                3897
             ]
+
         ]
     },
 
@@ -381,26 +547,37 @@ const steps = [
         title: "Brakes",
         description: "Choose your brakes.",
         options: [
+
             [
                 "Sram Force / Rival",
-                "Brakes/SramForceRival.png"
+                "Brakes/SramForceRival.png",
+                0
             ],
+
             [
                 "Sram Red",
-                "Brakes/SramRed.png"
+                "Brakes/SramRed.png",
+                0
             ],
+
             [
                 "Shimano 105",
-                "Brakes/Shimano105.png"
+                "Brakes/Shimano105.png",
+                0
             ],
+
             [
                 "Shimano Ultegra",
-                "Brakes/ShimanoUltegra.png"
+                "Brakes/ShimanoUltegra.png",
+                0
             ],
+
             [
                 "Shimano Dura Ace",
-                "Brakes/ShimanoDuraAce.png"
+                "Brakes/ShimanoDuraAce.png",
+                0
             ]
+
         ]
     },
 
@@ -408,14 +585,19 @@ const steps = [
         title: "Tires",
         description: "Choose your preferred tires.",
         options: [
+
             [
                 "Conti GP TR",
-                "Tires/ContiGPTR.png"
+                "Tires/ContiGPTR.png",
+                129
             ],
+
             [
                 "Conti GP5000 S TR",
-                "Tires/ContiGP5000STR.png"
+                "Tires/ContiGP5000STR.png",
+                189
             ]
+
         ]
     },
 
@@ -423,38 +605,94 @@ const steps = [
         title: "Saddle",
         description: "Choose your saddle.",
         options: [
+
             [
-                "Fizik Argo",
-                "Quickpro/QP_ERONE_Large/Saddles/FizikArgo.png"
+                "Fizik Argo R5",
+                "Quickpro/QP_ERONE_Large/Saddles/FizikArgo.png",
+                109
             ]
+
         ]
     }
 
 ];
 
+
+// ======================================
+// CONFIGURATOR VARIABLES
+// ======================================
+
 let currentStep = 0;
+
 let selections = Array(steps.length).fill(null);
 
 
+// ======================================
+// PRICE FORMAT
+// ======================================
+
+function formatPrice(price) {
+
+    return new Intl.NumberFormat("nl-BE", {
+        style: "currency",
+        currency: "EUR",
+        maximumFractionDigits: 0
+    }).format(price);
+
+}
+
+
+// ======================================
+// GET TOTAL PRICE
+// ======================================
+
+function calculateTotal() {
+
+    return selections.reduce((total, selection) => {
+
+        if (!selection) return total;
+
+        return total + selection.price;
+
+    }, 0);
+
+}
+
+
+// ======================================
 // RENDER STEP
+// ======================================
 
 function render() {
 
     const content = document.getElementById("stepContent");
 
     document.getElementById("stepIndicator").textContent =
-        `STEP ${String(currentStep + 1).padStart(2, "0")} / 06`;
+        currentStep >= steps.length
+        ? "CONFIGURATION COMPLETE"
+        : `STEP ${String(currentStep + 1).padStart(2, "0")} / 06`;
+
 
     document.getElementById("progress").innerHTML =
         steps.map((step, i) =>
             `<span class="${i <= currentStep ? "active" : ""}"></span>`
         ).join("");
 
+
     if (currentStep >= steps.length) {
 
         content.innerHTML = `
             <h1>Complete!</h1>
-            <p class="description">Your configuration is ready.</p>
+
+            <p class="description">
+                Your configuration is ready.
+            </p>
+
+            <p>Total configuration price:</p>
+
+            <div class="completion-price">
+                ${formatPrice(calculateTotal())}
+            </div>
         `;
 
     } else {
@@ -462,12 +700,19 @@ function render() {
         const step = steps[currentStep];
 
         content.innerHTML = `
+
             <h1>${step.title}</h1>
+
             <p class="description">${step.description}</p>
 
             <div class="options">
 
-                ${step.options.map((option, i) => `
+                ${step.options.map((option, i) => {
+
+                    const price = option[option.length - 1];
+
+                    return `
+
                     <div
                         class="option ${
                             selections[currentStep]?.name === option[0]
@@ -475,45 +720,81 @@ function render() {
                         }"
                         onclick="selectOption(${i})"
                     >
+
                         <img src="${option[1]}" alt="${option[0]}">
+
                         <h3>${option[0]}</h3>
+
+                        <div class="option-price">
+                            ${formatPrice(price)}
+                        </div>
+
                     </div>
-                `).join("")}
+
+                    `;
+
+                }).join("")}
 
             </div>
+
         `;
+
     }
+
 
     document.getElementById("back").disabled =
         currentStep === 0;
 
+
     document.getElementById("next").style.display =
         currentStep === steps.length ? "none" : "block";
+
 
     document.getElementById("next").textContent =
         currentStep === steps.length - 1
         ? "FINISH →"
         : "CONTINUE →";
+
+
+    updateSummary();
+
 }
 
 
+// ======================================
 // SELECT OPTION
+// ======================================
 
 function selectOption(index) {
 
     const option = steps[currentStep].options[index];
 
+    const price = option[option.length - 1];
+
+    // All images are between the name and the price.
+
+    const images = option.slice(1, -1);
+
     selections[currentStep] = {
+
         name: option[0],
-        images: option.slice(1).filter(Boolean)
+
+        images: images,
+
+        price: price
+
     };
 
     updatePreview();
+
     render();
+
 }
 
 
+// ======================================
 // UPDATE PREVIEW
+// ======================================
 
 function updatePreview() {
 
@@ -522,77 +803,151 @@ function updatePreview() {
         const layer = document.getElementById("layer" + i);
 
         if (!selection) {
+
             layer.classList.remove("visible");
 
-            // Hide the additional Groupset image
+            // Hide additional Groupset image
+
             if (i === 2) {
-                document.getElementById("layer2b").classList.remove("visible");
+
+                document.getElementById("layer2b")
+                    .classList.remove("visible");
+
             }
 
             return;
+
         }
 
-        // First image for the selected option
+
+        // First image
+
         layer.src = selection.images[0];
+
         layer.classList.add("visible");
 
-        // Second image, only used by the Groupset step
+
+        // Second Groupset image
+
         if (i === 2) {
 
-            const secondLayer = document.getElementById("layer2b");
+            const secondLayer =
+                document.getElementById("layer2b");
 
             if (selection.images[1]) {
+
                 secondLayer.src = selection.images[1];
+
                 secondLayer.classList.add("visible");
+
             } else {
+
                 secondLayer.classList.remove("visible");
+
             }
+
         }
 
     });
+
 
     const count = selections.filter(Boolean).length;
 
     document.getElementById("previewStatus").textContent =
         `${count} / 6 selected`;
 
-    document.getElementById("selectionList").innerHTML =
-        selections.map((selection, i) =>
-            selection
-            ? `<p>0${i+1} — ${selection.name}</p>`
-            : ""
-        ).join("") || "<p>No selections yet</p>";
 }
 
 
+// ======================================
+// UPDATE SELECTION SUMMARY + TOTAL
+// ======================================
+
+function updateSummary() {
+
+    const selectionList =
+        document.getElementById("selectionList");
+
+
+    selectionList.innerHTML =
+
+        selections.map((selection, i) => {
+
+            if (!selection) return "";
+
+            return `
+
+                <div class="summary-item">
+
+                    <span>
+                        0${i + 1} — ${selection.name}
+                    </span>
+
+                    <span>
+                        ${formatPrice(selection.price)}
+                    </span>
+
+                </div>
+
+            `;
+
+        }).join("") || "<p>No selections yet</p>";
+
+
+    // Update total price
+
+    document.getElementById("totalPrice").textContent =
+        formatPrice(calculateTotal());
+
+}
+
+
+// ======================================
 // NEXT STEP
+// ======================================
 
 function nextStep() {
 
+    if (currentStep >= steps.length) return;
+
     if (!selections[currentStep]) {
+
         alert("Please select an option first.");
+
         return;
+
     }
 
     currentStep++;
+
     render();
+
 }
 
 
+// ======================================
 // PREVIOUS STEP
+// ======================================
 
 function previousStep() {
 
     if (currentStep > 0) {
+
         currentStep--;
+
         render();
+
     }
+
 }
 
 
+// ======================================
 // START CONFIGURATOR
+// ======================================
 
 render();
+
 updatePreview();
 
 </script>
