@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Article Configurator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    color: #222;
+}
+
+header {
+    height: 75px;
+    padding: 0 5%;
+    display: flex;
+    align-items: center;
+    background: white;
+    border-bottom: 1px solid #eee;
+}
+
+header h2 {
+    font-size: 17px;
+    letter-spacing: 2px;
+}
+
+.configurator {
+    max-width: 1550px;
+    margin: 0 auto;
+    padding: 45px 35px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: 55px;
+    align-items: center;
+    min-height: calc(100vh - 75px);
+}
+
+.preview-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.preview-heading {
+    width: 100%;
+    max-width: 1050px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.preview-frame {
+    width: 100%;
+    max-width: 1050px;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    overflow: hidden;
+    background: #e5e5e5;
+}
+
+.preview-frame img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: none;
+    pointer-events: none;
+}
+
+.preview-frame img.visible {
+    display: block;
+}
+
+/* OVERLAY ORDER */
+#baseLayer { z-index: 0; }
+#layer0 { z-index: 4; }   /* Frame */
+#layer1 { z-index: 2; }   /* Wheels */
+#layer2 { z-index: 5; }   /* Groupset */
+#layer2b { z-index: 5.5; } /* Second Groupset image */
+#layer3 { z-index: 1; }   /* Brakes */
+#layer4 { z-index: 3; }   /* Tires */
+#layer5 { z-index: 6; }   /* Saddle */
+
+.preview-info {
+    width: 100%;
+    max-width: 1050px;
+    display: flex;
+    justify-content: space-between;
+    color: #888;
+    font-size: 12px;
+    margin-top: 12px;
+}
+
+.navigation {
+    width: 100%;
+    max-width: 1050px;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 25px;
+}
+
+button {
+    padding: 14px 25px;
+    border: none;
+    background: #222;
+    color: white;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+button:disabled {
+    opacity: .3;
+    cursor: not-allowed;
+}
+
+#back {
+    background: #ddd;
+    color: #222;
+}
+
+.selection-panel {
+    width: 100%;
+    align-self: center;
+}
+
+.step-indicator {
+    font-size: 11px;
+    color: #888;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+}
+
+.progress {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 30px;
+}
+
+.progress span {
+    flex: 1;
+    height: 3px;
+    background: #ddd;
+}
+
+.progress span.active {
+    background: #222;
+}
+
+.selection-panel h1 {
+    font-size: 27px;
+    margin: 0 0 10px;
+}
+
+.description {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 25px;
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.option {
+    background: white;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.option:hover {
+    border-color: #aaa;
+}
+
+.option.selected {
+    border-color: #222;
+}
+
+.option img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+    display: block;
+}
+
+.option h3 {
+    font-size: 13px;
+    padding: 0 10px;
+}
+
+.selection-summary {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.selection-summary h3 {
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.selection-summary p {
+    font-size: 12px;
+    color: #777;
+    margin: 10px 0;
+}
+
+@media(max-width: 950px) {
+    .configurator {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+
+    .selection-panel {
+        max-width: 600px;
+        margin: auto;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>BIKE CONFIGURATOR</h2>
+</header>
+
+<main class="configurator">
+
+    <section class="preview-section">
+
+        <div class="preview-heading">
+            <span>LIVE PREVIEW</span>
+            <span>1920 × 1080</span>
+        </div>
+
+        <div class="preview-frame">
+
+            <img
+                class="visible"
+                src="BG.png"
+                id="baseLayer"
+                alt="Base image"
+            >
+
+            <img id="layer0" alt="Frame">
+            <img id="layer1" alt="Wheels">
+            <img id="layer2" alt="Groupset">
+            <img id="layer2b" alt="Groupset detail">
+            <img id="layer3" alt="Brakes">
+            <img id="layer4" alt="Tires">
+            <img id="layer5" alt="Saddle">
+
+        </div>
+
+        <div class="preview-info">
+            <span>YOUR CONFIGURATION</span>
+            <span id="previewStatus">0 / 6 selected</span>
+        </div>
+
+        <div class="navigation">
+            <button id="back" onclick="previousStep()">← BACK</button>
+            <button id="next" onclick="nextStep()">CONTINUE →</button>
+        </div>
+
+    </section>
+
+    <aside class="selection-panel">
+
+        <div class="step-indicator" id="stepIndicator">
+            STEP 01 / 06
+        </div>
+
+        <div class="progress" id="progress"></div>
+
+        <div id="stepContent"></div>
+
+        <div class="selection-summary">
+            <h3>YOUR SELECTION</h3>
+            <div id="selectionList">
+                <p>No selections yet</p>
+            </div>
+        </div>
+
+    </aside>
+
+</main>
+
+<script>
+
+// YOUR EXISTING IMAGE PATHS ARE PRESERVED
+
+const steps = [
+
+    {
+        title: "Frame",
+        description: "Choose your frame.",
+        options: [
+            [
+                "Quick Pro ER:ONE Shimmering Silver",
+                "Quickpro/QP_ERONE_Large/QP_ERONE_ShimmeringSilver.png"
+            ],
+            [
+                "Quick Pro ER:ONE Twilight Blue",
+                "Quickpro/QP_ERONE_Large/QP_ERONE_TwilightBlue.png"
+            ]
+        ]
+    },
+
+    {
+        title: "Wheels",
+        description: "Choose your wheels.",
+        options: [
+            [
+                "Rore Aero ST",
+                "Rore Wheels/RoreAeroST.png"
+            ],
+            [
+                "Rore Aero 50",
+                "Rore Wheels/RoreAero50.png"
+            ],
+            [
+                "Rore Aero 60",
+                "Rore Wheels/RoreAero60.png"
+            ]
+        ]
+    },
+
+    {
+        title: "Groupset",
+        description: "Choose your preferred groupset.",
+        options: [
+            [
+                "Sram Rival 2x12",
+                "Groupsets/SramRival2x12.png",
+                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png"
+            ],
+            [
+                "Sram Force 2x12",
+                "Groupsets/SramForce2x12.png",
+                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png"
+            ],
+            [
+                "Sram Red 2x12",
+                "Groupsets/SramRed2x12.png",
+                "Quickpro/QP_ERONE_Large/Shifters/SramE1.png"
+            ],
+            [
+                "Shimano 105 Di2 2x12",
+                "Groupsets/Shimano1052x12.png",
+                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png"
+            ],
+            [
+                "Shimano Ultegra Di2 2x12",
+                "Groupsets/ShimanoUltegra2x12.png",
+                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png"
+            ],
+            [
+                "Shimano Dura Ace Di2 2x12",
+                "Groupsets/ShimanoDuraAce2x12.png",
+                "Quickpro/QP_ERONE_Large/Shifters/ShimanoDi2.png"
+            ]
+        ]
+    },
+
+    {
+        title: "Brakes",
+        description: "Choose your brakes.",
+        options: [
+            [
+                "Sram Force / Rival",
+                "Brakes/SramForceRival.png"
+            ],
+            [
+                "Sram Red",
+                "Brakes/SramRed.png"
+            ],
+            [
+                "Shimano 105",
+                "Brakes/Shimano105.png"
+            ],
+            [
+                "Shimano Ultegra",
+                "Brakes/ShimanoUltegra.png"
+            ],
+            [
+                "Shimano Dura Ace",
+                "Brakes/ShimanoDuraAce.png"
+            ]
+        ]
+    },
+
+    {
+        title: "Tires",
+        description: "Choose your preferred tires.",
+        options: [
+            [
+                "Conti GP TR",
+                "Tires/ContiGPTR.png"
+            ],
+            [
+                "Conti GP5000 S TR",
+                "Tires/ContiGP5000STR.png"
+            ]
+        ]
+    },
+
+    {
+        title: "Saddle",
+        description: "Choose your saddle.",
+        options: [
+            [
+                "Fizik Argo",
+                "Quickpro/QP_ERONE_Large/Saddles/FizikArgo.png"
+            ]
+        ]
+    }
+
+];
+
+let currentStep = 0;
+let selections = Array(steps.length).fill(null);
+
+
+// RENDER STEP
+
+function render() {
+
+    const content = document.getElementById("stepContent");
+
+    document.getElementById("stepIndicator").textContent =
+        `STEP ${String(currentStep + 1).padStart(2, "0")} / 06`;
+
+    document.getElementById("progress").innerHTML =
+        steps.map((step, i) =>
+            `<span class="${i <= currentStep ? "active" : ""}"></span>`
+        ).join("");
+
+    if (currentStep >= steps.length) {
+
+        content.innerHTML = `
+            <h1>Complete!</h1>
+            <p class="description">Your configuration is ready.</p>
+        `;
+
+    } else {
+
+        const step = steps[currentStep];
+
+        content.innerHTML = `
+            <h1>${step.title}</h1>
+            <p class="description">${step.description}</p>
+
+            <div class="options">
+
+                ${step.options.map((option, i) => `
+                    <div
+                        class="option ${
+                            selections[currentStep]?.name === option[0]
+                            ? "selected" : ""
+                        }"
+                        onclick="selectOption(${i})"
+                    >
+                        <img src="${option[1]}" alt="${option[0]}">
+                        <h3>${option[0]}</h3>
+                    </div>
+                `).join("")}
+
+            </div>
+        `;
+    }
+
+    document.getElementById("back").disabled =
+        currentStep === 0;
+
+    document.getElementById("next").style.display =
+        currentStep === steps.length ? "none" : "block";
+
+    document.getElementById("next").textContent =
+        currentStep === steps.length - 1
+        ? "FINISH →"
+        : "CONTINUE →";
+}
+
+
+// SELECT OPTION
+
+function selectOption(index) {
+
+    const option = steps[currentStep].options[index];
+
+    selections[currentStep] = {
+        name: option[0],
+        images: option.slice(1).filter(Boolean)
+    };
+
+    updatePreview();
+    render();
+}
+
+
+// UPDATE PREVIEW
+
+function updatePreview() {
+
+    selections.forEach((selection, i) => {
+
+        const layer = document.getElementById("layer" + i);
+
+        if (!selection) {
+            layer.classList.remove("visible");
+
+            // Hide the additional Groupset image
+            if (i === 2) {
+                document.getElementById("layer2b").classList.remove("visible");
+            }
+
+            return;
+        }
+
+        // First image for the selected option
+        layer.src = selection.images[0];
+        layer.classList.add("visible");
+
+        // Second image, only used by the Groupset step
+        if (i === 2) {
+
+            const secondLayer = document.getElementById("layer2b");
+
+            if (selection.images[1]) {
+                secondLayer.src = selection.images[1];
+                secondLayer.classList.add("visible");
+            } else {
+                secondLayer.classList.remove("visible");
+            }
+        }
+
+    });
+
+    const count = selections.filter(Boolean).length;
+
+    document.getElementById("previewStatus").textContent =
+        `${count} / 6 selected`;
+
+    document.getElementById("selectionList").innerHTML =
+        selections.map((selection, i) =>
+            selection
+            ? `<p>0${i+1} — ${selection.name}</p>`
+            : ""
+        ).join("") || "<p>No selections yet</p>";
+}
+
+
+// NEXT STEP
+
+function nextStep() {
+
+    if (!selections[currentStep]) {
+        alert("Please select an option first.");
+        return;
+    }
+
+    currentStep++;
+    render();
+}
+
+
+// PREVIOUS STEP
+
+function previousStep() {
+
+    if (currentStep > 0) {
+        currentStep--;
+        render();
+    }
+}
+
+
+// START CONFIGURATOR
+
+render();
+updatePreview();
+
+</script>
+
+</body>
+</html>
