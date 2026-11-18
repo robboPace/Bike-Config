@@ -88,11 +88,11 @@ header h2 {
 
 #baseLayer { z-index: 0; }
 #layer0 { z-index: 4; }
-#layer1 { z-index: 2; }
+#layer1 { z-index: 3; }
 #layer2 { z-index: 5; }
 #layer2b { z-index: 5.5; }
 #layer3 { z-index: 1; }
-#layer4 { z-index: 3; }
+#layer4 { z-index: 2; }
 #layer5 { z-index: 6; }
 
 .preview-info {
@@ -211,6 +211,37 @@ button:disabled {
     padding: 0 10px 12px;
 }
 
+/* ROAD / GRAVEL SELECTION */
+
+.bike-type-option {
+    background: white;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: .2s;
+    text-align: center;
+}
+
+.bike-type-option:hover {
+    border-color: #aaa;
+}
+
+.bike-type-option.selected {
+    border-color: #222;
+}
+
+.bike-type-option h3 {
+    font-size: 15px;
+    padding: 20px 10px 5px;
+}
+
+.bike-type-option p {
+    font-size: 12px;
+    color: #888;
+    padding: 0 10px 15px;
+}
+
+/* SELECTION SUMMARY */
+
 .selection-summary {
     margin-top: 30px;
     padding-top: 20px;
@@ -267,6 +298,14 @@ button:disabled {
     font-size: 28px;
     font-weight: bold;
     margin-top: 25px;
+}
+
+.empty-options {
+    grid-column: 1 / -1;
+    background: white;
+    padding: 20px;
+    font-size: 12px;
+    color: #888;
 }
 
 @media(max-width: 950px) {
@@ -339,7 +378,7 @@ button:disabled {
 
         <div class="preview-info">
             <span>YOUR CONFIGURATION</span>
-            <span id="previewStatus">0 / 6 selected</span>
+            <span id="previewStatus">Choose Road or Gravel</span>
         </div>
 
         <div class="navigation">
@@ -352,7 +391,7 @@ button:disabled {
     <aside class="selection-panel">
 
         <div class="step-indicator" id="stepIndicator">
-            STEP 01 / 06
+            STEP 01 / 01
         </div>
 
         <div class="progress" id="progress"></div>
@@ -381,7 +420,7 @@ button:disabled {
 <script>
 
 // ======================================
-// YOUR IMAGE PATHS AND PRICES
+// ROAD CONFIGURATION
 // ======================================
 //
 // FORMAT:
@@ -392,12 +431,11 @@ button:disabled {
 // Option with TWO images:
 // ["Name", "image1.png", "image2.png", PRICE]
 //
-// Change the prices directly below.
-// All prices are in EUR.
+// Prices are in EUR.
 //
 // ======================================
 
-const steps = [
+const roadSteps = [
 
     {
         title: "Frame",
@@ -450,6 +488,12 @@ const steps = [
                 "Tavelo Arden Race SL Stain Carbon Plaid",
                 "Tavelo/Tavelo_ArdenRaceSL_StainCarbonPlaid.png",
                 2995
+            ],
+
+            [
+                "Cannondale SuperSix EVO Hi-MOD Race Yellow",
+                "Cannondale/Cannondale_SuperSixEVOHi-MOD_RaceYellow.png",
+                4499
             ]
 
         ]
@@ -619,12 +663,149 @@ const steps = [
 
 
 // ======================================
+// GRAVEL CONFIGURATION
+// ======================================
+//
+// Add your Gravel options here.
+//
+// Use the same format as the Road configuration.
+//
+// Normal option:
+// ["Name", "image.png", PRICE]
+//
+// Option with TWO images:
+// ["Name", "image1.png", "image2.png", PRICE]
+//
+// The image paths can point to your own
+// Gravel folders.
+//
+// ======================================
+
+const gravelSteps = [
+
+    {
+        title: "Frame",
+        description: "Choose your gravel frame.",
+        options: [
+
+            [
+                "Tavelo Grow Black",
+                "Tavelo/Tavelo_Grow_Black.png",
+                2195
+            ],[
+                "Tavelo Grow Purple",
+                "Tavelo/Tavelo_Grow_Purple.png",
+                2195
+            ]
+
+        ]
+    },
+
+    {
+        title: "Wheels",
+        description: "Choose your gravel wheels.",
+        options: [
+
+            [
+                "Rore Gravel 45 Race",
+                "Wheels/RoreGravel45Race.png",
+                1199
+            ],[
+                "Pertual Sharp GR",
+                "Wheels/PertualSharpGR.png",
+                1195
+            ]
+
+        ]
+    },
+
+    {
+        title: "Groupset",
+        description: "Choose your gravel groupset.",
+        options: [
+
+            [
+                "Sram Rival XPLR 1x13",
+                "Groupsets/SramRivaelXPLR_Gravel.png",
+                0
+            ]
+        ]
+    },
+
+    {
+        title: "Brakes",
+        description: "Choose your brakes.",
+        options: [
+
+            [
+                "Sram Force / Rival",
+                "Brakes/SramForceRival.png",
+                0
+            ],
+
+            [
+                "Sram Red",
+                "Brakes/SramRed.png",
+                0
+            ],
+
+            [
+                "Shimano 105",
+                "Brakes/Shimano105.png",
+                0
+            ],
+
+            [
+                "Shimano Ultegra",
+                "Brakes/ShimanoUltegra.png",
+                0
+            ]
+
+        ]
+    },
+
+    {
+        title: "Tires",
+        description: "Choose your gravel tires.",
+        options: [
+
+            [
+                "Schwalbe Thunderburt 2.1",
+                "Tires/SchwalbeThunderburt.png",
+                145
+            ]
+
+        ]
+    },
+
+    {
+        title: "Saddle",
+        description: "Choose your saddle.",
+        options: [
+
+            // Add Gravel saddle options here.
+
+        ]
+    }
+
+];
+
+
+// ======================================
 // CONFIGURATOR VARIABLES
 // ======================================
 
-let currentStep = 0;
+// -1 = Bike type selection
+//  0 = First configuration step
+//  6 = Configuration complete
 
-let selections = Array(steps.length).fill(null);
+let currentStep = -1;
+
+let bikeType = null;
+
+let steps = [];
+
+let selections = [];
 
 
 // ======================================
@@ -660,32 +841,149 @@ function calculateTotal() {
 
 
 // ======================================
-// RENDER STEP
+// SELECT BIKE TYPE
+// ======================================
+
+function selectBikeType(type) {
+
+    bikeType = type;
+
+    document.querySelectorAll(".bike-type-option").forEach(option => {
+
+        option.classList.toggle(
+            "selected",
+            option.dataset.type === type
+        );
+
+    });
+
+}
+
+
+// ======================================
+// START CONFIGURATION
+// ======================================
+
+function startConfiguration() {
+
+    if (!bikeType) {
+
+        alert("Please choose Road or Gravel first.");
+
+        return;
+
+    }
+
+    // Load the correct configuration.
+
+    steps = bikeType === "road" ? roadSteps : gravelSteps;
+
+    // Create separate selections for the chosen bike type.
+
+    selections = Array(steps.length).fill(null);
+
+    currentStep = 0;
+
+    updatePreview();
+
+    render();
+
+}
+
+
+// ======================================
+// RENDER
 // ======================================
 
 function render() {
 
     const content = document.getElementById("stepContent");
 
-    document.getElementById("stepIndicator").textContent =
-        currentStep >= steps.length
-        ? "CONFIGURATION COMPLETE"
-        : `STEP ${String(currentStep + 1).padStart(2, "0")} / 06`;
+
+    // ==================================
+    // BIKE TYPE SELECTION
+    // ==================================
+
+    if (currentStep === -1) {
+
+        document.getElementById("stepIndicator").textContent =
+            "STEP 01 / 01";
+
+        document.getElementById("progress").innerHTML =
+            '<span class="active"></span>';
+
+        content.innerHTML = `
+
+            <h1>Choose your bike</h1>
+
+            <p class="description">
+                Select your preferred bike category to start configuring.
+            </p>
+
+            <div class="options">
+
+                <div
+                    class="bike-type-option ${bikeType === "road" ? "selected" : ""}"
+                    data-type="road"
+                    onclick="selectBikeType('road')"
+                >
+
+                    <h3>ROAD</h3>
+
+                    <p>Performance and speed.</p>
+
+                </div>
+
+                <div
+                    class="bike-type-option ${bikeType === "gravel" ? "selected" : ""}"
+                    data-type="gravel"
+                    onclick="selectBikeType('gravel')"
+                >
+
+                    <h3>GRAVEL</h3>
+
+                    <p>Adventure beyond the road.</p>
+
+                </div>
+
+            </div>
+
+        `;
+
+        document.getElementById("back").disabled = true;
+
+        document.getElementById("next").style.display = "block";
+
+        document.getElementById("next").textContent =
+            "START CONFIGURING →";
+
+        updateSummary();
+
+        return;
+
+    }
 
 
-    document.getElementById("progress").innerHTML =
-        steps.map((step, i) =>
-            `<span class="${i <= currentStep ? "active" : ""}"></span>`
-        ).join("");
-
+    // ==================================
+    // CONFIGURATION COMPLETE
+    // ==================================
 
     if (currentStep >= steps.length) {
 
+        document.getElementById("stepIndicator").textContent =
+            "CONFIGURATION COMPLETE";
+
+        document.getElementById("progress").innerHTML =
+            steps.map(() =>
+                '<span class="active"></span>'
+            ).join("");
+
         content.innerHTML = `
+
             <h1>Complete!</h1>
 
             <p class="description">
-                Your configuration is ready.
+                Your ${bikeType} configuration is ready.
             </p>
 
             <p>Total configuration price:</p>
@@ -693,11 +991,26 @@ function render() {
             <div class="completion-price">
                 ${formatPrice(calculateTotal())}
             </div>
+
         `;
 
     } else {
 
         const step = steps[currentStep];
+
+        document.getElementById("stepIndicator").textContent =
+
+            `STEP ${String(currentStep + 1).padStart(2, "0")} / ${String(steps.length).padStart(2, "0")}`;
+
+
+        document.getElementById("progress").innerHTML =
+
+            steps.map((step, i) =>
+
+                `<span class="${i <= currentStep ? "active" : ""}"></span>`
+
+            ).join("");
+
 
         content.innerHTML = `
 
@@ -707,7 +1020,13 @@ function render() {
 
             <div class="options">
 
-                ${step.options.map((option, i) => {
+                ${step.options.length === 0 ? `
+
+                    <div class="empty-options">
+                        Options for this step have not been added yet.
+                    </div>
+
+                ` : step.options.map((option, i) => {
 
                     const price = option[option.length - 1];
 
@@ -721,7 +1040,10 @@ function render() {
                         onclick="selectOption(${i})"
                     >
 
-                        <img src="${option[1]}" alt="${option[0]}">
+                        <img
+                            src="${option[1]}"
+                            alt="${option[0]}"
+                        >
 
                         <h3>${option[0]}</h3>
 
@@ -742,15 +1064,19 @@ function render() {
     }
 
 
-    document.getElementById("back").disabled =
-        currentStep === 0;
+    // ==================================
+    // NAVIGATION BUTTONS
+    // ==================================
 
+    document.getElementById("back").disabled = false;
 
     document.getElementById("next").style.display =
+
         currentStep === steps.length ? "none" : "block";
 
 
     document.getElementById("next").textContent =
+
         currentStep === steps.length - 1
         ? "FINISH →"
         : "CONTINUE →";
@@ -793,41 +1119,62 @@ function selectOption(index) {
 
 
 // ======================================
+// CLEAR PREVIEW LAYERS
+// ======================================
+
+function clearPreview() {
+
+    for (let i = 0; i < 6; i++) {
+
+        const layer = document.getElementById("layer" + i);
+
+        layer.classList.remove("visible");
+
+        layer.removeAttribute("src");
+
+    }
+
+    document.getElementById("layer2b")
+        .classList.remove("visible");
+
+    document.getElementById("layer2b")
+        .removeAttribute("src");
+
+}
+
+
+// ======================================
 // UPDATE PREVIEW
 // ======================================
 
 function updatePreview() {
 
+    // First hide all configurable layers.
+    // This prevents images from the previous
+    // configuration remaining visible.
+
+    clearPreview();
+
+
+    // Show selected images.
+
     selections.forEach((selection, i) => {
+
+        if (!selection) return;
 
         const layer = document.getElementById("layer" + i);
 
-        if (!selection) {
-
-            layer.classList.remove("visible");
-
-            // Hide additional Groupset image
-
-            if (i === 2) {
-
-                document.getElementById("layer2b")
-                    .classList.remove("visible");
-
-            }
-
-            return;
-
-        }
+        if (!layer) return;
 
 
-        // First image
+        // First image.
 
         layer.src = selection.images[0];
 
         layer.classList.add("visible");
 
 
-        // Second Groupset image
+        // Second Groupset image.
 
         if (i === 2) {
 
@@ -840,10 +1187,6 @@ function updatePreview() {
 
                 secondLayer.classList.add("visible");
 
-            } else {
-
-                secondLayer.classList.remove("visible");
-
             }
 
         }
@@ -851,10 +1194,15 @@ function updatePreview() {
     });
 
 
+    // Update preview status.
+
     const count = selections.filter(Boolean).length;
 
     document.getElementById("previewStatus").textContent =
-        `${count} / 6 selected`;
+
+        bikeType
+        ? `${count} / ${steps.length} selected`
+        : "Choose Road or Gravel";
 
 }
 
@@ -894,9 +1242,10 @@ function updateSummary() {
         }).join("") || "<p>No selections yet</p>";
 
 
-    // Update total price
+    // Update total price.
 
     document.getElementById("totalPrice").textContent =
+
         formatPrice(calculateTotal());
 
 }
@@ -908,7 +1257,19 @@ function updateSummary() {
 
 function nextStep() {
 
+    // Start after selecting Road or Gravel.
+
+    if (currentStep === -1) {
+
+        startConfiguration();
+
+        return;
+
+    }
+
+
     if (currentStep >= steps.length) return;
+
 
     if (!selections[currentStep]) {
 
@@ -917,6 +1278,7 @@ function nextStep() {
         return;
 
     }
+
 
     currentStep++;
 
@@ -931,9 +1293,34 @@ function nextStep() {
 
 function previousStep() {
 
+    // Go to previous configuration step.
+
     if (currentStep > 0) {
 
         currentStep--;
+
+        render();
+
+        return;
+
+    }
+
+
+    // Return to Road / Gravel selection.
+
+    if (currentStep === 0) {
+
+        currentStep = -1;
+
+        bikeType = null;
+
+        steps = [];
+
+        selections = [];
+
+        clearPreview();
+
+        updatePreview();
 
         render();
 
